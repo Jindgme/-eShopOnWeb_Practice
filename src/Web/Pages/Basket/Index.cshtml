@@ -1,0 +1,77 @@
+﻿@page "{handler?}"
+@* 不添加handler?,默认地址是 /Basket?handler=Update *@
+@*购物车页面*@
+@model Web.Pages.Basket.IndexModel
+@{
+    ViewData["Title"] = "Basket";
+}
+<section class="esh-catalog-hero">
+    <div class="container">
+        <img class="esh-catalog-title" src="~/images/main_banner_text.png" />
+    </div>
+</section>
+
+<div class="container esh-basket-bottom">
+    @if (Model.BasketModel.Items.Any())
+    {
+        <form method="post">
+            <article class="esh-basket-titles esh-basket-weight row">
+                <br />
+                <section class="col-3">商品图片</section>
+                <section class="col-3">商品名称</section>
+                <section class="col-1">单价</section>
+                <section class="col-2">数量</section>
+                <section class="col-1">费用</section>
+                <section class="col-2"></section>
+            </article>
+            <div class="esh-catalog-items row">
+                @* <div asp-validation-summary="All" class="text-danger"></div> *@
+                @for (int i = 0; i < Model.BasketModel.Items.Count; i++)
+                {
+                    var item = Model.BasketModel.Items[i];
+                    <article class="esh-basket-item esh-basket-item--middle row">
+                        <section class="col-3">
+                            <img class="esh-basket-image" src="@item.PictureUrl" />
+                        </section>
+                        <section class="col-3">@item.ProductName</section>
+                        <section class="col-1">@item.UnitPrice.ToString("c")</section>
+                        <section class="col-2">
+                            <input type="hidden" name="@("items[" + i + "].Id")" value="@item.Id" />
+                            <input type="number" class="esh-basket-input"  name="@("items[" + i + "].Quantity")" value="@item.Quantity" />
+                        </section>
+                        <section class="esh-basket-item--mark col-1">
+                            @Math.Round(item.UnitPrice * item.Quantity, 2).ToString("c")
+                        </section>
+                        <section class="col-2">
+                            <span asp-validation-for="Items[i].Quantity" class="text-danger"></span>
+                        </section>
+                    </article>
+                }
+                <div class="container">
+                    <article class="esh-basket-titles row">
+                        <section class="esh-basket-weight col-1 offset-8">总计：</section>
+                        <section class="esh-basket-item--mark col-2">@Model.BasketModel.Total().ToString("c")</section>
+                    </article>
+                </div>
+                <div class="esh-basket-item row">
+                    <section class="col-2">
+                        <a asp-page="/Index" class="btn esh-basket-checkout text-white">继续购物</a>
+                    </section>
+                    <section class="col-3 offset-6">
+                        <button class="btn esh-basket-checkout"  type="submit" name="updatebutton" asp-page-handler="Update">修改</button>
+                        <a asp-page="/Basket/Checkout" class="btn esh-basket-checkout">结账</a>
+                    </section>
+                </div>
+            </div>
+        </form>
+    }
+    else
+    {
+        <h3 class="esh-catalog-item ">
+            购物车是空的！
+        </h3>
+        <section class="esh-catalog-item">
+            <a asp-page="/Index" class="btn esh-basket-checkout text-white">继续购物</a>
+        </section>
+    }
+</div>

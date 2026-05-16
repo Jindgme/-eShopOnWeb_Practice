@@ -1,0 +1,195 @@
+﻿@inject ILogger<Create> Logger
+@inject ICatalogItemService CatalogItemService
+@inject IJSRuntime JSRuntime
+
+@inherits BlazorAdmin.Helpers.BlazorComponent
+
+<div class="modal @_modalClass" tabindex="-1" role="dialog" style="display:@_modalDisplay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="_item" OnValidSubmit="CreateClick">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">创建</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭" @onclick="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (_item == null)
+                    {
+                        <Spinner></Spinner>
+                    }
+                    else
+                    {
+                        <div class="container">
+                            <div class="row">
+                                @if (HasPicture)
+                                {
+                                    <img class="col-md-12 esh-picture" src="@LoadPicture"/>
+                                }
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">名称</label>
+                                        <div class="col-md-12">
+                                            <InputText class="form-control" @bind-Value="_item.Name"/>
+                                            <ValidationMessage For="@(()=>_item.Name)"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">描述</label>
+                                        <div class="col-md-12">
+                                            <InputText class="form-control" @bind-Value="_item.Description" />
+                                            <ValidationMessage For="@(() => _item.Description)" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">图片</label>
+                                        <div class="col-md-12">
+                                            <InputFile OnChange="HandleSelection" class="form-control" />
+                                            @if (_badFileMessage!=null && _badFileMessage.Any())
+                                            {
+                                                <ul class="text-danger mt-1" style="list-style:none">
+                                                    @foreach (var message in _badFileMessage)
+                                                    {
+                                                        <li>@message</li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">品牌</label>
+                                        <div class="col-md-12">
+                                            <InputSelect @bind-Value="_item.CatalogBrandId" class="form-control">
+                                                @foreach (var brand in Brands)
+                                            {
+                                                <option value="@brand.Id">@brand.Name</option>
+                                            }
+                                            </InputSelect>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">类型</label>
+                                        <div class="col-md-12">
+                                            <InputSelect @bind-Value="_item.CatalogTypeId" class="form-control">
+                                                @foreach (var type in Types)
+                                                {
+                                                    <option value="@type.Id">@type.Name</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6">价格</label>
+                                        <div class="col-md-12">
+                                            <InputNumber class="form-control" @bind-Value="_item.Price" />
+                                            <ValidationMessage For="@(() => _item.Price)" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="Close">关闭</button>
+                    <button type="submit" class="btn btn-primary">
+                        创建
+                    </button>
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+@if (_showCreateModal)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+@code {
+    [Parameter]
+    public IEnumerable<CatalogBrand> Brands { get; set; }
+    [Parameter]
+    public IEnumerable<CatalogType> Types { get; set; }
+    [Parameter]
+    public EventCallback<string> OnSaveClick { get; set; }
+
+    private string LoadPicture => string.IsNullOrEmpty(_item.PictureBase64) ? string.Empty : $"data:image/png;base64,{_item.PictureBase64}";  // 加载图片数据
+    private bool HasPicture => !string.IsNullOrEmpty(_item.PictureBase64);  // 判断是否有图片数据
+    private string _modalDisplay = "none";  // 模态框显示状态，默认为隐藏
+    private string _modalClass = "";
+    private bool _showCreateModal = false; // 控制模态框显示,默认为不显示
+    private CreateCatalogItemRequest _item = new CreateCatalogItemRequest();
+    private List<string> _badFileMessage = new();
+
+    private async Task CreateClick()
+    {
+        if (!string.IsNullOrEmpty(_item.PictureBase64))
+        {
+            _item.PictureUri = _item.PictureBase64;
+        }
+        var result = await CatalogItemService.Create(_item);
+        if (result != null)
+        {
+            await OnSaveClick.InvokeAsync(null);
+            await Close();
+        }
+    }
+    public async Task Open()
+    {
+        Logger.LogInformation("正在打开创建产品页面");
+
+
+        _item = new CreateCatalogItemRequest
+        {
+            CatalogTypeId = Types.First().Id,
+            CatalogBrandId = Brands.First().Id
+        };
+        _modalDisplay = "block"; // 显示模态框
+        _modalClass = "show"; // 添加显示类
+        _showCreateModal = true; // 设置显示标志
+
+        StateHasChanged(); // 刷新UI
+        await new Css(JSRuntime).HideBodyOverflow(); // 隐藏页面滚动条
+    }
+    public async Task Close()
+    {
+        await new Css(JSRuntime).ShowBodyOverflow(); // 显示页面滚动条
+        _modalDisplay = "none"; // 隐藏模态框
+        _modalClass = ""; // 移除显示类
+        _showCreateModal = false; // 移除显示标志
+    }
+    public async Task HandleSelection(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var message= CatalogItem.IsValidImage(file).ToList();
+            if (message.Any())
+            {
+                _badFileMessage = message;
+                _item.PictureBase64=null;
+                _item.PictureName=null;
+                return;
+            }
+            try
+            {
+                _badFileMessage.Clear();   // 清空错误
+                var base64 = await CatalogItem.DataToBase64(file);
+                _item.PictureBase64 = base64;
+                _item.PictureUri = base64;  
+                _item.PictureName = file.Name;
+            }
+            catch (Exception ex)
+            {
+                _badFileMessage.Add("文件读取异常");
+                Logger.LogError(ex.Message);
+            }
+            
+            StateHasChanged(); // 刷新UI以显示新图片
+        }
+    }
+}

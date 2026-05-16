@@ -1,0 +1,59 @@
+﻿@page "/Admin"
+@inherits BlazorAdmin.Helpers.BlazorComponent
+
+<PageTitle>eShopOnWeb 管理员：管理产品目录</PageTitle>
+<h1>管理产品目录</h1>
+
+@if (catalogItems == null)
+{
+    <Spinner></Spinner>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="@(CreateClick)">
+        创建新产品
+    </button>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th>类型</th>
+                <th>品牌</th>
+                <th>Id</th>
+                <th>名称</th>
+                <th>@nameof(CatalogItem.Description)</th>
+                <th>@nameof(CatalogItem.Price)</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody class="cursor-pointer">
+            @foreach (var item in catalogItems)
+            {
+                <tr>
+                    <td>
+                        <img class="img-thumbnail" src="@($"{item.PictureUri}")"/>
+                    </td>
+                    <td>@item.CatalogType</td>
+                    <td>@item.CatalogBrand</td>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.Price.ToString("c")</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" @onclick="()=>UpdateClick(item.Id)">
+                            编辑
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteClick(item.Id)">
+                            删除
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <Create Brands="@catalogBrands" Types="@catalogTypes" OnSaveClick="@ReloadCatalogItems" @ref="CreateComponent"></Create>
+    <Edit Brands="@catalogBrands" Types="@catalogTypes" OnSaveClick="@ReloadCatalogItems" @ref="EditComponent"></Edit>
+    <Delete Brands="@catalogBrands" Types="@catalogTypes" OnSaveClick="@ReloadCatalogItems" @ref="DeleteComponent"></Delete>
+}
+

@@ -1,0 +1,47 @@
+﻿@model PaginationInfoViewModel
+@* 分页视图组件 *@
+@{
+    // 上一页
+    var prevRouteData = Context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
+    if (prevRouteData.ContainsKey("pageId"))
+    {
+        prevRouteData.Remove("pageId");
+    }
+    prevRouteData.Add("pageId", (Model.ActualPage - 1).ToString());
+    // 下一页
+    var nextRouteData = Context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
+    if (nextRouteData.ContainsKey("pageId"))
+    {
+        nextRouteData.Remove("pageId");
+    }
+    nextRouteData.Add("pageId", (Model.ActualPage + 1).ToString());
+}
+<div class="esh-pager">
+    <div class="container-fluid">
+        <article class="esh-pager-wrapper row">
+                <div class="col-md-3 col-12">
+                    <a class="esh-pager-item--navigable esh-pager-item @Model.Previous"
+                       id="Previous"
+                       asp-all-route-data="prevRouteData"
+                       aria-label="Previous">
+                        上一页
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-12">
+                    <span class="esh-pager-item">
+                        @Model.ItemsPerPage / @Model.TotalItems 件商品 - @(Model.ActualPage + 1) 页 / @Model.TotalPages 页
+                    </span>
+                </div>
+
+                <div class="col-md-3 col-12">
+                    <a class="esh-pager-item--navigable esh-pager-item @Model.Next"
+                       id="Next"
+                       asp-all-route-data="nextRouteData"
+                       aria-label="Next">
+                        下一页
+                    </a>
+                </div>
+        </article>
+    </div>
+</div>

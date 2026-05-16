@@ -1,0 +1,36 @@
+﻿@model IEnumerable<OrderViewModel>
+@{
+    ViewData["Title"] = "My Order History";
+}
+
+<div class="esh-orders container">
+    <h1>@ViewData["Title"]</h1>
+    <article class="esh-orders-titles row">
+        <section class="col-2">订单号</section>
+        <section class="col-4">日期</section>
+        <section class="col-2">总价</section>
+        <section class="col-2">状态</section>
+        <section class="col-2"></section>
+    </article>
+    @if(Model !=null && Model.Any())
+    {
+        @foreach(var item in Model)
+        {
+            <article class="esh-orders-items row">
+                <section class="col-2">@item.OrderNumber</section>
+                <section class="col-4">@item.OrderDate</section>
+                <section class="col-2">@item.TotalPrice.ToString("c")</section>
+                <section class="col-2">@item.Status</section>
+                <section class="col-1">
+                    <a class="esh-orders-link" asp-controller="Order" asp-action="GetOrderDetails" asp-route-orderId="@item.OrderNumber">详情</a>
+                </section>
+                <section class="col-1">
+                    @if (item.Status.ToLower() == "submitted")
+                    {
+                        <a class="esh-orders-link" asp-controller="Order" asp-action="Cancel" asp-route-orderId="@item.OrderNumber">关闭</a>
+                    }
+                </section>
+            </article>
+        }
+    }
+</div>

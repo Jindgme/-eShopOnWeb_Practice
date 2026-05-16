@@ -1,0 +1,14 @@
+﻿.cursor-pointer{
+    cursor:pointer;
+}
+.img-thumbnail{
+    max-width:120px;
+    height:auto;
+}
+.esh-picture {
+    width: 100%;
+    height: auto;
+}
+.body-no-overflow {
+    overflow: hidden !important;
+}

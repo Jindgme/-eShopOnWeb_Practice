@@ -1,0 +1,101 @@
+﻿@inject ILogger<Delete> Logger
+@inject ICatalogItemService CatalogItemService
+@inject IJSRuntime JSRuntime
+
+<div class="modal @_modalClass" tabindex="-1" role="dialog" style="display:@_modalDispaly">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">删除 @_item.Name</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (_item == null)
+                {
+                    <Spinner></Spinner>
+                }
+                else
+                {
+                    <div class="container">
+                        <div class="row">
+                            @if (HasPicture)
+                            {
+                                <div class="col-md-12 text-center">
+                                    <img class="img-fluid esh-picture" src="@_item.PictureUri" />
+                                </div>
+                            }
+                            <div class="col-md-@(HasPicture ? "12" : "6")">
+                                <dl class="row">
+                                    <dt class="col-sm-2 ">名称</dt>
+                                    <dd class="col-sm-10">@_item.Name</dd>
+
+                                    <dt class="col-sm-2">内容</dt>
+                                    <dd class="col-sm-10">@_item.Description</dd>
+
+                                    <dt class="col-sm-2">品牌</dt>
+                                    <dd class="col-sm-10">@_item.CatalogBrand</dd>
+
+                                    <dt class="col-sm-2">类型</dt>
+                                    <dd class="col-sm-10">@_item.CatalogType</dd>
+
+                                    <dt class="col-sm-2">价格</dt>
+                                    <dd class="col-sm-10">@_item.Price.ToString("c")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="Close">关闭</button>
+                <button class="btn btn-danger" @onclick="()=>DeleteClick(_item.Id)">
+                    删除
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (_showDeleteModal)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+@code {
+    [Parameter]
+    public IEnumerable<CatalogBrand> Brands { get; set; }
+    [Parameter]
+    public IEnumerable<CatalogType> Types { get; set; }
+    [Parameter]
+    public EventCallback<string> OnSaveClick { get; set; }
+
+    private bool HasPicture => !string.IsNullOrEmpty(_item.PictureUri);
+    private string _modalDispaly = "none";
+    private string _modalClass = "";
+    private bool _showDeleteModal = false;
+    public CatalogItem _item = new();
+
+    public async Task DeleteClick(int id)
+    {
+        await CatalogItemService.Delete(id);
+        await OnSaveClick.InvokeAsync(null);
+        await Close();
+    }
+
+    public async Task Open(int id)
+    {
+        await new Css(JSRuntime).HideBodyOverflow();
+
+        _item = await CatalogItemService.GetById(id);
+        _modalDispaly = "block";
+        _modalClass = "Show";
+        _showDeleteModal = true;
+
+
+    }
+    public async Task Close()
+    {
+        await new Css(JSRuntime).ShowBodyOverflow();
+        _modalDispaly = "none";
+        _modalClass = "";
+        _showDeleteModal = false;
+    }
+}

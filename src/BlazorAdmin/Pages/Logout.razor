@@ -1,0 +1,13 @@
+﻿@page "/logout"
+@inject NavigationManager NavigationManager
+<h3>Logout</h3>
+<button class="btn btn-secondary" @onclick="GetLogout">
+    返回商城
+</button>
+
+@code {
+    private void GetLogout()
+    {
+        NavigationManager.NavigateTo("/",true);
+    }
+}

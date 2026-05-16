@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Web</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/catalog/catalog.component.css" />
+    <link rel="stylesheet" href="~/css/shared/components/pager/pager.css" />
+    <link rel="stylesheet" href="~/css/app.component.css" />
+    <link rel="stylesheet" href="~/css/basket/basket-status.component.css" />
+    <link rel="stylesheet" href="~/css/basket/basket.component.css" />
+    <link rel="stylesheet" href="~/css/orders/order.component.css" />
+</head>
+<body>
+    <header class="esh-app-header">
+        <div class="container">
+            <article class="row">
+                <section class="col-lg-7 col-md-6 col-12">
+                    <a asp-area="" asp-page="/Index">
+                        <img src="~/images/brand.png" alt="网上商城"/>
+                    </a>
+                    <a asp-controller="Order" asp-action="GetMyOrders">
+                        我的订单
+                    </a>
+                    <a asp-area="" asp-page="/Admin/Index">
+                        管理员
+                    </a>
+                </section>
+                <section class="col-lg-4">
+
+                </section>
+                <section class="col-lg-1 col-12">
+                    @await Component.InvokeAsync("Basket")
+                </section>
+            </article>
+        </div>
+    </header>
+    @RenderBody()
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

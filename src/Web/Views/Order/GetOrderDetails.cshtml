@@ -1,0 +1,55 @@
+﻿@model OrderDetailViewModel
+@{
+    ViewData["Title"] = "Order Details";
+}
+<div class="container">
+    <section>
+        <article class="esh-orders-detail-article row">
+            <section class="col-3">订单号</section>
+            <section class="col-3">日期</section>
+            <section class="col-2">总价</section>
+            <section class="col-3">状态</section>
+        </article>
+        <article class="row">
+            <section class="col-3">@Model.OrderNumber</section>
+            <section class="col-3">@Model.OrderDate</section>
+            <section class="col-2">@Model.TotalPrice.ToString("c")</section>
+            <section class="col-3">@Model.Status</section>
+        </article>
+    </section>
+    <div>
+        <div>
+            <div class="esh-orders-detail-title">收货地址</div>
+            <span>@Model.ShippingAddress?.Country</span>
+            <span>@Model.ShippingAddress?.State</span>
+            <span>@Model.ShippingAddress?.City</span>
+            <span>@Model.ShippingAddress?.Street</span>
+        </div>
+        <div>
+            <div class="esh-orders-detail-title">订单明细</div>
+            <article class="esh-orders-detail-article row">
+                <section class="col-4">图片</section>
+                <section class="col-3">名称</section>
+                <section class="col-2">单价</section>
+                <section class="col-1">数量</section>
+                <section class="col-1">合计</section>
+            </article>
+            @foreach (var item in Model.OrderItems)
+            {
+                <article class="row">
+                    <section class="col-4">
+                        <img src="@item.PictureUrl" />
+                    </section>
+                    <section class="col-3">@item.ProductName</section>
+                    <section class="col-2">@item.UnitPrice.ToString("c")</section>
+                    <section class="col-1">@item.Units</section>
+                    <section class="col-2">@Math.Round(item.UnitPrice * item.Units, 2).ToString("c")</section>
+                </article>
+            }
+        </div>
+        <div class="esh-orders-detail-article row">
+            <div class="col-1 offset-9">总价:</div>
+            <span class="col-1">@Model.TotalPrice.ToString("c")</span>
+        </div>
+    </div>
+</div>
